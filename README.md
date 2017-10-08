@@ -12,3 +12,8 @@ Currently known issues:
 * Crashs might occur.
 
 I was able to reuse some of the code from my fork of [XOutput](https://github.com/CaptainProton42/XOutput). Also huge thanks to all the contributors over at the [Switch Reverse Engineering](https://github.com/dekuNukem/Nintendo_Switch_Reverse_Engineering) repo.
+
+# Setup
+1. If you're on Windows 7, install the [XBox 360 Controller Driver](http://www.microsoft.com/hardware/en-us/d/xbox-360-controller-for-windows) first.
+2. Run `ScpDriver.exe` from the folder `ScpDriver`.
+3. Start `WinJoy.exe`.
