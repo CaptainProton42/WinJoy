@@ -8,6 +8,7 @@ There will be bugs, there will be missing features.
 Currently known issues:
 * Application won't always shut down correctly (make sure you kill the task)
 * There can be input lag.
+* Battery indicator in application doesn't work correctly.
 * Support for custom control bindings is not yet implemented.
 * Crashs might occur.
 
