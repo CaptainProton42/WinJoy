@@ -1,0 +1,10 @@
+C:\Users\DerSc\Source\Repos\WinJoy\WinJoy_HidAPI\obj\Debug\WinJoy_HidAPI.Properties.Resources.resources
+C:\Users\DerSc\Source\Repos\WinJoy\WinJoy_HidAPI\obj\Debug\WinJoy_HidAPI.WinJoy.resources
+C:\Users\DerSc\Source\Repos\WinJoy\WinJoy_HidAPI\obj\Debug\WinJoy_HidAPI.csproj.GenerateResource.Cache
+C:\Users\DerSc\Source\Repos\WinJoy\WinJoy_HidAPI\obj\Debug\WinJoy_HidAPI.csproj.CoreCompileInputs.cache
+C:\Users\DerSc\Source\Repos\WinJoy\WinJoy_HidAPI\bin\Debug\WinJoy_HidAPI.exe.config
+C:\Users\DerSc\Source\Repos\WinJoy\WinJoy_HidAPI\bin\Debug\WinJoy_HidAPI.exe
+C:\Users\DerSc\Source\Repos\WinJoy\WinJoy_HidAPI\bin\Debug\WinJoy_HidAPI.pdb
+C:\Users\DerSc\Source\Repos\WinJoy\WinJoy_HidAPI\obj\Debug\WinJoy_HidAPI.csprojResolveAssemblyReference.cache
+C:\Users\DerSc\Source\Repos\WinJoy\WinJoy_HidAPI\obj\Debug\WinJoy_HidAPI.exe
+C:\Users\DerSc\Source\Repos\WinJoy\WinJoy_HidAPI\obj\Debug\WinJoy_HidAPI.pdb
