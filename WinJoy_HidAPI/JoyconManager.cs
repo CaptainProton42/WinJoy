@@ -110,12 +110,13 @@ namespace WinJoy_HidAPI
             }
         }
 
-        public void JoinDevices()
+        public bool JoinDevices()
         {
             if (joycons[0] != null && joycons[1] != null && !isActive)
             {
                 joined = true;
             }
+            return joined;
         }
 
         public void UnjoinDevices()

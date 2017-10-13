@@ -43,23 +43,15 @@
             this.pictureBoxR = new System.Windows.Forms.PictureBox();
             this.labelBatteryR = new System.Windows.Forms.Label();
             this.labelNameR = new System.Windows.Forms.Label();
-            this.groupBoxC = new System.Windows.Forms.GroupBox();
-            this.buttonCalC = new System.Windows.Forms.Button();
-            this.labelLatC = new System.Windows.Forms.Label();
-            this.pictureBoxC = new System.Windows.Forms.PictureBox();
-            this.labelBatteryC = new System.Windows.Forms.Label();
-            this.labelNameC = new System.Windows.Forms.Label();
             this.groupBoxL.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxL)).BeginInit();
             this.groupBoxR.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxR)).BeginInit();
-            this.groupBoxC.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxC)).BeginInit();
             this.SuspendLayout();
             // 
             // buttonStart
             // 
-            this.buttonStart.Location = new System.Drawing.Point(430, 279);
+            this.buttonStart.Location = new System.Drawing.Point(428, 190);
             this.buttonStart.Name = "buttonStart";
             this.buttonStart.Size = new System.Drawing.Size(128, 59);
             this.buttonStart.TabIndex = 1;
@@ -69,7 +61,7 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(349, 279);
+            this.button2.Location = new System.Drawing.Point(347, 190);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(75, 59);
             this.button2.TabIndex = 4;
@@ -197,72 +189,11 @@
             this.labelNameR.TabIndex = 11;
             this.labelNameR.Text = "labelNameR";
             // 
-            // groupBoxC
-            // 
-            this.groupBoxC.Controls.Add(this.buttonCalC);
-            this.groupBoxC.Controls.Add(this.labelLatC);
-            this.groupBoxC.Controls.Add(this.pictureBoxC);
-            this.groupBoxC.Controls.Add(this.labelBatteryC);
-            this.groupBoxC.Controls.Add(this.labelNameC);
-            this.groupBoxC.Location = new System.Drawing.Point(12, 190);
-            this.groupBoxC.Name = "groupBoxC";
-            this.groupBoxC.Size = new System.Drawing.Size(552, 83);
-            this.groupBoxC.TabIndex = 7;
-            this.groupBoxC.TabStop = false;
-            // 
-            // buttonCalC
-            // 
-            this.buttonCalC.Location = new System.Drawing.Point(482, 13);
-            this.buttonCalC.Name = "buttonCalC";
-            this.buttonCalC.Size = new System.Drawing.Size(64, 64);
-            this.buttonCalC.TabIndex = 9;
-            this.buttonCalC.Text = "Calibrate";
-            this.buttonCalC.UseVisualStyleBackColor = true;
-            this.buttonCalC.Click += new System.EventHandler(this.buttonCalC_Click);
-            // 
-            // labelLatC
-            // 
-            this.labelLatC.AutoSize = true;
-            this.labelLatC.Location = new System.Drawing.Point(76, 64);
-            this.labelLatC.Name = "labelLatC";
-            this.labelLatC.Size = new System.Drawing.Size(51, 13);
-            this.labelLatC.TabIndex = 16;
-            this.labelLatC.Text = "labelLatC";
-            // 
-            // pictureBoxC
-            // 
-            this.pictureBoxC.Image = global::WinJoy_HidAPI.Properties.Resources.joycon_c;
-            this.pictureBoxC.InitialImage = null;
-            this.pictureBoxC.Location = new System.Drawing.Point(6, 13);
-            this.pictureBoxC.Name = "pictureBoxC";
-            this.pictureBoxC.Size = new System.Drawing.Size(64, 64);
-            this.pictureBoxC.TabIndex = 3;
-            this.pictureBoxC.TabStop = false;
-            // 
-            // labelBatteryC
-            // 
-            this.labelBatteryC.AutoSize = true;
-            this.labelBatteryC.Location = new System.Drawing.Point(76, 38);
-            this.labelBatteryC.Name = "labelBatteryC";
-            this.labelBatteryC.Size = new System.Drawing.Size(69, 13);
-            this.labelBatteryC.TabIndex = 15;
-            this.labelBatteryC.Text = "labelBatteryC";
-            // 
-            // labelNameC
-            // 
-            this.labelNameC.AutoSize = true;
-            this.labelNameC.Location = new System.Drawing.Point(76, 13);
-            this.labelNameC.Name = "labelNameC";
-            this.labelNameC.Size = new System.Drawing.Size(64, 13);
-            this.labelNameC.TabIndex = 14;
-            this.labelNameC.Text = "labelNameC";
-            // 
             // WinJoy
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(576, 350);
-            this.Controls.Add(this.groupBoxC);
+            this.ClientSize = new System.Drawing.Size(576, 258);
             this.Controls.Add(this.groupBoxR);
             this.Controls.Add(this.groupBoxL);
             this.Controls.Add(this.button2);
@@ -279,9 +210,6 @@
             this.groupBoxR.ResumeLayout(false);
             this.groupBoxR.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxR)).EndInit();
-            this.groupBoxC.ResumeLayout(false);
-            this.groupBoxC.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxC)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -291,7 +219,6 @@
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.GroupBox groupBoxL;
         private System.Windows.Forms.GroupBox groupBoxR;
-        private System.Windows.Forms.GroupBox groupBoxC;
         private System.Windows.Forms.PictureBox pictureBoxR;
         private System.Windows.Forms.Button buttonCalL;
         private System.Windows.Forms.Label labelLatL;
@@ -302,11 +229,6 @@
         private System.Windows.Forms.Label labelLatR;
         private System.Windows.Forms.Label labelBatteryR;
         private System.Windows.Forms.Label labelNameR;
-        private System.Windows.Forms.Button buttonCalC;
-        private System.Windows.Forms.Label labelLatC;
-        private System.Windows.Forms.PictureBox pictureBoxC;
-        private System.Windows.Forms.Label labelBatteryC;
-        private System.Windows.Forms.Label labelNameC;
     }
 }
 

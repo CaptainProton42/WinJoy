@@ -30,23 +30,18 @@ namespace WinJoy_HidAPI
             //reset gui
             labelNameL.Text = "Disconnected.";
             labelNameR.Text = "Disconnected.";
-            labelNameC.Text = "Disconnected.";
 
             labelBatteryL.Text = "";
             labelBatteryR.Text = "";
-            labelBatteryC.Text = "";
 
             labelLatL.Text = "";
             labelLatR.Text = "";
-            labelLatC.Text = "";
 
             pictureBoxL.Image = Properties.Resources.joycon_l_inactive;
             pictureBoxR.Image = Properties.Resources.joycon_r_inactive;
-            pictureBoxC.Image = Properties.Resources.joycon_c_inactive;
 
             groupBoxL.Enabled = false;
             groupBoxR.Enabled = false;
-            groupBoxC.Enabled = false;
 
             //setup events
             joyconManager = new JoyconManager(this);
@@ -209,9 +204,7 @@ namespace WinJoy_HidAPI
         {
             if (button2.Text == "Combine")
             {
-                joyconManager.JoinDevices();
-                UpdateInfo(joyconManager.joycons);
-                button2.Text = "Separate";
+                if (joyconManager.JoinDevices()) button2.Text = "Separate";
             } else if (button2.Text == "Separate")
             {
                 joyconManager.UnjoinDevices();
@@ -237,15 +230,13 @@ namespace WinJoy_HidAPI
 
         private void WinJoy_FormClosed(object sender, FormClosedEventArgs e)
         {
-            if (joyconManager.IsActive)
-            {
-                joyconManager.Stop();
-            }
+            if (joyconManager.IsActive) joyconManager.Stop();
+
             scanner_L.StopAsyncScan();
             scanner_R.StopAsyncScan();
 
-            joyconManager.joycons[0].GetDevice().StopAsyncRead();
-            joyconManager.joycons[1].GetDevice().StopAsyncRead();
+            if (joyconManager.joycons[0] != null) joyconManager.joycons[0].GetDevice().StopAsyncRead();
+            if (joyconManager.joycons[0] != null) joyconManager.joycons[1].GetDevice().StopAsyncRead();
         }
     }
 }
