@@ -28,7 +28,6 @@ namespace WinJoy_HidAPI
         public byte[] mapping = new byte[50];
         public OutputState xOutput;
         public string Name { get; set; }
-        public bool Enabled { get; set; }
 
         private byte[] Color = new byte[3];
         private int[] Center = new int[4];
@@ -46,7 +45,6 @@ namespace WinJoy_HidAPI
 
         public JoyconDevice(ushort VID, ushort PID, string name)
         {
-            Enabled = true;
             Device = new USBDevice(VID, PID, null, true, 65);
             VendorID = VID;
             ProductID = PID;

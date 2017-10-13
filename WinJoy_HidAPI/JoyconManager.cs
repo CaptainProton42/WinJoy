@@ -98,7 +98,6 @@ namespace WinJoy_HidAPI
                 }
             }
             isActive = false;
-            DeviceInfoChanged(this, new EventArgs());
             return base.Stop();
         }
 
@@ -184,12 +183,10 @@ namespace WinJoy_HidAPI
                         byte[] data = joycons[index].GetOutput();
                         if (data != null)
                         {
+                            data[0] = (byte)index;
                             Parse(data, processingData[index].parsedData);  //input to output
                             if (!joined)
                             {
-                                data[0] = (byte)index;
-                                Parse(data, processingData[index].parsedData);  //input to output
-                                Console.WriteLine(Convert.ToString(processingData[index].parsedData[4], 2));
                                 Report(processingData[index].parsedData, processingData[index].output);
                             }
                             else
@@ -197,8 +194,9 @@ namespace WinJoy_HidAPI
                                 data[0] = (byte)0;
                                 Parse(data, processingData[2].parsedData);
                                 // combine processingData 0 + 1 and Report.
-                                for (int i = 10; i < 22; i++) processingData[2].parsedData[i] = (byte)(processingData[0].parsedData[i] | processingData[1].parsedData[i]);
-                                Console.WriteLine(Convert.ToString(processingData[2].parsedData[4], 2));
+                                for (int i = 10; i < 14; i++) processingData[2].parsedData[i] = (byte)(processingData[0].parsedData[i] | processingData[1].parsedData[i]); //buttons
+                                for (int i = 14; i < 18; i++) processingData[2].parsedData[i] = processingData[0].parsedData[i];    //left stick
+                                for (int i = 18; i < 22; i++) processingData[2].parsedData[i] = processingData[1].parsedData[i];    //right stick
                                 Report(processingData[2].parsedData, processingData[2].output);
                             }
                             if (joycons[index].GetBattery() != oldBattery)

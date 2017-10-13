@@ -27,22 +27,6 @@ namespace WinJoy_HidAPI
 
         private void WinJoy_Load(object sender, EventArgs e)
         {
-            //reset gui
-            labelNameL.Text = "Disconnected.";
-            labelNameR.Text = "Disconnected.";
-
-            labelBatteryL.Text = "";
-            labelBatteryR.Text = "";
-
-            labelLatL.Text = "";
-            labelLatR.Text = "";
-
-            pictureBoxL.Image = Properties.Resources.joycon_l_inactive;
-            pictureBoxR.Image = Properties.Resources.joycon_r_inactive;
-
-            groupBoxL.Enabled = false;
-            groupBoxR.Enabled = false;
-
             //setup events
             joyconManager = new JoyconManager(this);
             scanner_L.DeviceArrived += DeviceArrived;
@@ -54,6 +38,8 @@ namespace WinJoy_HidAPI
             scanner_R.StartAsyncScan();
 
             joyconManager.DeviceInfoChanged += DeviceInfoChanged;
+
+            UpdateInfo(joyconManager.joycons);
         }
 
         private void WinJoy_Shown(object sender, EventArgs e)
@@ -112,12 +98,6 @@ namespace WinJoy_HidAPI
                 labelBatteryL.Text = "";
                 pictureBoxL.Image = Properties.Resources.joycon_l_inactive;
                 groupBoxL.Enabled = false;
-            } else if (!joycons[0].Enabled)
-            {
-                labelNameL.Text = "Disabled.";
-                labelBatteryL.Text = "";
-                pictureBoxL.Image = Properties.Resources.joycon_l_inactive;
-                groupBoxL.Enabled = false;
             } else
             {
                 labelNameL.Text = joycons[0].Name;
@@ -130,13 +110,6 @@ namespace WinJoy_HidAPI
             if (joycons[1] == null)
             {
                 labelNameR.Text = "Disconnected.";
-                labelBatteryR.Text = "";
-                pictureBoxR.Image = Properties.Resources.joycon_r_inactive;
-                groupBoxR.Enabled = false;
-            }
-            else if (!joycons[1].Enabled)
-            {
-                labelNameR.Text = "Disabled.";
                 labelBatteryR.Text = "";
                 pictureBoxR.Image = Properties.Resources.joycon_r_inactive;
                 groupBoxR.Enabled = false;
@@ -186,12 +159,14 @@ namespace WinJoy_HidAPI
                 joyconManager.Start();
                 buttonStart.Text = "Stop";
                 button2.Enabled = false;
+                UpdateInfo(joyconManager.joycons);
             }
             else
             {
                 joyconManager.Stop();
                 buttonStart.Text = "Start";
                 button2.Enabled = true;
+                UpdateInfo(joyconManager.joycons);
             }
         }
 
