@@ -17,6 +17,8 @@ namespace WinJoy_HidAPI
             public byte[] output = new byte[8];
         }
 
+        public event EventHandler DeviceInfoChanged;
+
         public IDevice[] joycons = new IDevice[3];
         public bool isActive = new bool();
 
@@ -85,6 +87,7 @@ namespace WinJoy_HidAPI
                 }
             }
             isActive = true;
+            DeviceInfoChanged(this, new EventArgs());
             return isActive;
         }
 
@@ -111,6 +114,7 @@ namespace WinJoy_HidAPI
                 }
             }
             isActive = false;
+            DeviceInfoChanged(this, new EventArgs());
             return base.Stop();
         }
 
@@ -205,7 +209,11 @@ namespace WinJoy_HidAPI
                 data[0] = (byte)index;
                 Parse(data, processingData[index].parsedData);  //input to output
                 Report(processingData[index].parsedData, processingData[index].output);
-                if (joycons[index].GetBattery(subindex) != oldBattery) SetBatteryLED(joycons[index], subindex, joycons[index].GetBattery());
+                if (joycons[index].GetBattery(subindex) != oldBattery)
+                {
+                    SetBatteryLED(joycons[index], subindex, joycons[index].GetBattery());
+                    DeviceInfoChanged(this, new EventArgs());
+                }
             }
         }
 

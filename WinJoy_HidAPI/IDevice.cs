@@ -40,5 +40,6 @@ namespace WinJoy_HidAPI
         byte GetBattery(int index = 0);
         void SetBattery(byte level, int index = 0);
         void SetLEDs(byte config, int index = 0);
+        byte[] GetColor();
     }
 }

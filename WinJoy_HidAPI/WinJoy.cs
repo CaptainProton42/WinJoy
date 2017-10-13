@@ -6,7 +6,9 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 using System.Windows.Forms;
+using System.Drawing.Imaging;
 using USBInterface;
 
 namespace WinJoy_HidAPI
@@ -25,6 +27,28 @@ namespace WinJoy_HidAPI
 
         private void WinJoy_Load(object sender, EventArgs e)
         {
+            //reset gui
+            labelNameL.Text = "Disconnected.";
+            labelNameR.Text = "Disconnected.";
+            labelNameC.Text = "Disconnected.";
+
+            labelBatteryL.Text = "";
+            labelBatteryR.Text = "";
+            labelBatteryC.Text = "";
+
+            labelLatL.Text = "";
+            labelLatR.Text = "";
+            labelLatC.Text = "";
+
+            pictureBoxL.Image = Properties.Resources.joycon_l_inactive;
+            pictureBoxR.Image = Properties.Resources.joycon_r_inactive;
+            pictureBoxC.Image = Properties.Resources.joycon_c_inactive;
+
+            groupBoxL.Enabled = false;
+            groupBoxR.Enabled = false;
+            groupBoxC.Enabled = false;
+
+            //setup events
             joyconManager = new JoyconManager(this);
             scanner_L.DeviceArrived += DeviceArrived;
             scanner_L.DeviceRemoved += DeviceRemoved;
@@ -33,6 +57,8 @@ namespace WinJoy_HidAPI
 
             scanner_L.StartAsyncScan();
             scanner_R.StartAsyncScan();
+
+            joyconManager.DeviceInfoChanged += DeviceInfoChanged;
         }
 
         private void WinJoy_Shown(object sender, EventArgs e)
@@ -42,10 +68,19 @@ namespace WinJoy_HidAPI
 
         private void DeviceArrived(object s, EventArgs a)
         {
-            if (s.Equals(scanner_L)) joyconManager.joycons[0] = new JoyconDevice(ID.Vendor, ID.Joycon_L, "JoyCon (L)");
+            if (s.Equals(scanner_L))
+            {
+                joyconManager.joycons[0] = new JoyconDevice(ID.Vendor, ID.Joycon_L, "JoyCon (L)");
+            }
             else joyconManager.joycons[1] = new JoyconDevice(ID.Vendor, ID.Joycon_R, "JoyCon (R)");
 
+
             BeginInvoke(new Action(delegate { UpdateInfo(joyconManager.joycons); } ));
+        }
+
+        private void testhandler(object s, EventArgs a)
+        {
+            Console.WriteLine("test");
         }
 
         private void DeviceRemoved(object s, EventArgs a)
@@ -56,7 +91,13 @@ namespace WinJoy_HidAPI
             BeginInvoke(new Action(delegate { UpdateInfo(joyconManager.joycons); }));
         }
 
-        private void UpdateInfo(IDevice[] joycons)
+        private void DeviceInfoChanged(object s, EventArgs a)
+        {
+            Console.WriteLine("Device info changed, updating GUI...");
+            BeginInvoke(new Action(delegate { UpdateInfo(joyconManager.joycons); }));
+        }
+
+        public void UpdateInfo(IDevice[] joycons)
         {
             if (joycons[0] == null)
             {
@@ -67,14 +108,15 @@ namespace WinJoy_HidAPI
             } else if (!joycons[0].Enabled)
             {
                 labelNameL.Text = "Disabled.";
-                labelBatteryL.Text = "Battery: " + joycons[0].GetBattery() / 8 * 100 + " %";
+                labelBatteryL.Text = "";
                 pictureBoxL.Image = Properties.Resources.joycon_l_inactive;
                 groupBoxL.Enabled = false;
             } else
             {
                 labelNameL.Text = joycons[0].Name;
-                labelBatteryL.Text = "Battery: " + joycons[0].GetBattery() / 8 * 100 + " %";
-                pictureBoxL.Image = Properties.Resources.joycon_l;
+                if (joyconManager.isActive) labelBatteryL.Text = "Battery: " + ((float)joycons[0].GetBattery() / 8) * 100 + " %";
+                else labelBatteryL.Text = "";
+                pictureBoxL.Image = Joycon_Image(0, Color.FromArgb(joycons[0].GetColor()[0], joycons[0].GetColor()[1], joycons[0].GetColor()[2]));
                 groupBoxL.Enabled = true;
             }
 
@@ -88,14 +130,15 @@ namespace WinJoy_HidAPI
             else if (!joycons[1].Enabled)
             {
                 labelNameR.Text = "Disabled.";
-                labelBatteryR.Text = "Battery: " + joycons[1].GetBattery() / 8 * 100 + " %";
+                labelBatteryR.Text = "";
                 pictureBoxR.Image = Properties.Resources.joycon_r_inactive;
                 groupBoxR.Enabled = false;
             } else
             {
                 labelNameR.Text = joycons[1].Name;
-                labelBatteryR.Text = "Battery: " + joycons[1].GetBattery() / 8 * 100 + " %";
-                pictureBoxR.Image = Properties.Resources.joycon_r;
+                if (joyconManager.isActive) labelBatteryR.Text = "Battery: " + ((float)joycons[1].GetBattery() / 8) * 100 + " %";
+                else labelBatteryR.Text = "";
+                pictureBoxR.Image = Joycon_Image(1, Color.FromArgb(joycons[1].GetColor()[0], joycons[1].GetColor()[1], joycons[1].GetColor()[2]));
                 groupBoxR.Enabled = true;
             }
 
@@ -113,12 +156,38 @@ namespace WinJoy_HidAPI
             } else
             {
                 labelNameC.Text = joycons[2].Name;
-                pictureBoxC.Image = Properties.Resources.joycon_c;
+                pictureBoxC.Image = Properties.Resources.joycon_c;  //need to implement recolor
                 groupBoxC.Enabled = true;
             }
 
             if (joycons[0] == null || joycons[1] == null || joyconManager.isActive) button2.Enabled = false;
             else button2.Enabled = true;
+        }
+
+        private Image Joycon_Image(int index, Color color)
+        {
+            Bitmap bmp;
+            switch (index)
+            {
+                case 0:
+                    bmp = Properties.Resources.joycon_l;
+                    break;
+                case 1:
+                    bmp = Properties.Resources.joycon_r;
+                    break;
+                default:
+                    bmp = Properties.Resources.joycon_c;
+                    break;
+            }
+
+            for (int x = 0; x < bmp.Width; x++)
+            {
+                for (int y = 0; y < bmp.Height; y++)
+                {
+                    if (bmp.GetPixel(x, y) == Color.FromArgb(255, 0, 255)) bmp.SetPixel(x, y, color);
+                }
+            }
+            return bmp;
         }
 
         private void buttonStart_Click(object sender, EventArgs e)

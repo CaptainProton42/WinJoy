@@ -360,5 +360,10 @@ namespace WinJoy_HidAPI
                     break;
             }
         }
+
+        byte[] IDevice.GetColor()
+        {
+            return new byte[3];
+        }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 using USBInterface;
 
 namespace WinJoy_HidAPI
@@ -15,6 +16,7 @@ namespace WinJoy_HidAPI
         public string Name { get; set; }
         public bool Enabled { get; set; }
 
+        private byte[] Color = new byte[3];
         private int[] Center = new int[4];
         private int[] Analogs = new int[4]; //LX, LY, RX, RY
         private bool[] Buttons = new bool[24];  //Y, X, B, A, SR_right, SL_right, R, ZR, Minus, Plus, R3, L3, Home, Capture, -, -, Down, Up, Right, Left, SR_left, SL_left, L, ZL
@@ -35,6 +37,8 @@ namespace WinJoy_HidAPI
             VendorID = VID;
             ProductID = PID;
             Name = name;
+
+            Color = ReadColor();
 
             //temporary standard mapping
             for (int i = 0; i < 17; i++)
@@ -80,6 +84,7 @@ namespace WinJoy_HidAPI
         {
             return (int[])Analogs.Clone();
         }
+
         void IDevice.SetAnalogs(int left_x_value, int left_y_value, int right_x_value, int right_y_value)
         {
             Analogs[0] = left_x_value;
@@ -126,6 +131,11 @@ namespace WinJoy_HidAPI
         void IDevice.SetBattery(byte level, int index)
         {
             Battery = level;
+        }
+
+        byte[] IDevice.GetColor()
+        {
+            return Color;
         }
 
         void IDevice.SetLEDs(byte config, int index)
@@ -355,6 +365,52 @@ namespace WinJoy_HidAPI
                     Buttons[12] = ((data >> 4) & 0x01) != 0;
                     break;
             }
+        }
+
+        private byte[] ReadColor() //offsets in SPI data seem to vary depending on current input
+        {
+            byte[] color = new byte[3];
+
+            byte[] buf = new byte[0x100];
+            buf[0] = 0x01;  //send subcommand
+            buf[10] = 0x10; //read SPI subcommand
+            buf[11] = 0x50; //SPI adress 0x6050 for B
+            buf[12] = 0x60;
+            buf[15] = 0x18;
+
+            Device.Write(buf);
+            Thread.Sleep(100);
+            buf = Device.Read();
+
+            color[0] = buf[20];
+
+            buf = new byte[0x100];
+            buf[0] = 0x01;  //send subcommand
+            buf[10] = 0x10; //read SPI subcommand
+            buf[11] = 0x51; //SPI adress 0x6051 for R
+            buf[12] = 0x60;
+            buf[15] = 0x18;
+
+            Device.Write(buf);
+            Thread.Sleep(100);
+            buf = Device.Read();
+
+            color[1] = buf[20];
+
+            buf = new byte[0x100];
+            buf[0] = 0x01;  //send subcommand
+            buf[10] = 0x10; //read SPI subcommand
+            buf[11] = 0x52; //SPI adress 0x6052 for G
+            buf[12] = 0x60;
+            buf[15] = 0x18;
+
+            Device.Write(buf);
+            Thread.Sleep(100);
+            buf = Device.Read();
+
+            color[2] = buf[20];
+
+            return color;
         }
     }
 }
