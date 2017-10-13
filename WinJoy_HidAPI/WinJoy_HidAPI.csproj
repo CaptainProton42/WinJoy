@@ -49,8 +49,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IDevice.cs" />
-    <Compile Include="JoinedDevice.cs" />
     <Compile Include="JoyconDevice.cs" />
     <Compile Include="JoyconManager.cs" />
     <Compile Include="ScpDevice.cs" />

@@ -71,22 +71,34 @@ namespace WinJoy_HidAPI
             if (s.Equals(scanner_L))
             {
                 joyconManager.joycons[0] = new JoyconDevice(ID.Vendor, ID.Joycon_L, "JoyCon (L)");
+                joyconManager.joycons[0].GetDevice().InputReportArrivedEvent += (object o, ReportEventArgs e) => joyconManager.ProcessData(0, e, 0);
+                joyconManager.joycons[0].GetDevice().StartAsyncRead();
+                joyconManager.joycons[0].ReadColor();
             }
-            else joyconManager.joycons[1] = new JoyconDevice(ID.Vendor, ID.Joycon_R, "JoyCon (R)");
+            else
+            {
+                joyconManager.joycons[1] = new JoyconDevice(ID.Vendor, ID.Joycon_R, "JoyCon (R)");
+                joyconManager.joycons[1].GetDevice().InputReportArrivedEvent += (object o, ReportEventArgs e) => joyconManager.ProcessData(1, e, 0);
+                joyconManager.joycons[1].GetDevice().StartAsyncRead();
+                joyconManager.joycons[1].ReadColor();
+            }
 
 
             BeginInvoke(new Action(delegate { UpdateInfo(joyconManager.joycons); } ));
         }
 
-        private void testhandler(object s, EventArgs a)
-        {
-            Console.WriteLine("test");
-        }
-
         private void DeviceRemoved(object s, EventArgs a)
         {
-            if (s.Equals(scanner_L)) joyconManager.joycons[0] = null;
-            else joyconManager.joycons[1] = null;
+            if (s.Equals(scanner_L))
+            {
+                joyconManager.joycons[0].GetDevice().StopAsyncRead();
+                joyconManager.joycons[0] = null;
+            }
+            else
+            {
+                joyconManager.joycons[1].GetDevice().StopAsyncRead();
+                joyconManager.joycons[1] = null;
+            }
 
             BeginInvoke(new Action(delegate { UpdateInfo(joyconManager.joycons); }));
         }
@@ -97,7 +109,7 @@ namespace WinJoy_HidAPI
             BeginInvoke(new Action(delegate { UpdateInfo(joyconManager.joycons); }));
         }
 
-        public void UpdateInfo(IDevice[] joycons)
+        public void UpdateInfo(JoyconDevice[] joycons)
         {
             if (joycons[0] == null)
             {
@@ -140,24 +152,6 @@ namespace WinJoy_HidAPI
                 else labelBatteryR.Text = "";
                 pictureBoxR.Image = Joycon_Image(1, Color.FromArgb(joycons[1].GetColor()[0], joycons[1].GetColor()[1], joycons[1].GetColor()[2]));
                 groupBoxR.Enabled = true;
-            }
-
-            if (joycons[2] == null)
-            {
-                labelNameC.Text = "Disconnected.";
-                pictureBoxC.Image = Properties.Resources.joycon_c_inactive;
-                groupBoxC.Enabled = false;
-            }
-            else if (!joycons[2].Enabled)
-            {
-                labelNameC.Text = "Disabled.";
-                pictureBoxC.Image = Properties.Resources.joycon_c_inactive;
-                groupBoxC.Enabled = false;
-            } else
-            {
-                labelNameC.Text = joycons[2].Name;
-                pictureBoxC.Image = Properties.Resources.joycon_c;  //need to implement recolor
-                groupBoxC.Enabled = true;
             }
 
             if (joycons[0] == null || joycons[1] == null || joyconManager.isActive) button2.Enabled = false;
@@ -249,6 +243,9 @@ namespace WinJoy_HidAPI
             }
             scanner_L.StopAsyncScan();
             scanner_R.StopAsyncScan();
+
+            joyconManager.joycons[0].GetDevice().StopAsyncRead();
+            joyconManager.joycons[1].GetDevice().StopAsyncRead();
         }
     }
 }

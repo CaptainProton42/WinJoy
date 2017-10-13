@@ -8,7 +8,21 @@ using USBInterface;
 
 namespace WinJoy_HidAPI
 {
-    class JoyconDevice : IDevice
+    public struct OutputState
+    {
+        public byte LX, LY, RX, RY, L2, R2;
+        public bool A, B, X, Y, Start, Back, L1, R1, L3, R3, Home;
+        public bool DpadUp, DpadRight, DpadDown, DpadLeft;
+    }
+
+    public static class ID
+    {
+        public const int Vendor = 0x057e;
+        public const int Joycon_L = 0x2006;
+        public const int Joycon_R = 0x2007;
+    }
+
+    public class JoyconDevice
     {
         //properties that stay the same for every device
         public byte[] mapping = new byte[50];
@@ -37,8 +51,6 @@ namespace WinJoy_HidAPI
             VendorID = VID;
             ProductID = PID;
             Name = name;
-
-            Color = ReadColor();
 
             //temporary standard mapping
             for (int i = 0; i < 17; i++)
@@ -75,17 +87,17 @@ namespace WinJoy_HidAPI
             }
         }
 
-        void IDevice.PushReport(byte[] buf, int PID)
+        public void PushReport(byte[] buf, int PID)
         {
             report = buf;
         }
 
-        int[] IDevice.GetAnalogs()
+        public int[] GetAnalogs()
         {
             return (int[])Analogs.Clone();
         }
 
-        void IDevice.SetAnalogs(int left_x_value, int left_y_value, int right_x_value, int right_y_value)
+        public void SetAnalogs(int left_x_value, int left_y_value, int right_x_value, int right_y_value)
         {
             Analogs[0] = left_x_value;
             Analogs[1] = left_y_value;
@@ -93,52 +105,47 @@ namespace WinJoy_HidAPI
             Analogs[3] = right_y_value;
         }
 
-        USBDevice IDevice.GetDevice(int index)
+        public USBDevice GetDevice()
         {
             return Device;
         }
 
-        void IDevice.SetDevice(USBDevice dev, int index)
+        public void SetDevice(USBDevice dev)
         {
             Device = dev;
         }
 
-        int IDevice.GetVendor(int index)
+        public int GetVendor()
         {
             return VendorID;
         }
 
-        void IDevice.SetVendor(int vendor, int index)
+        public void SetVendor(int vendor)
         {
             VendorID = vendor;
         }
 
-        int IDevice.GetProduct(int index)
+        public int GetProduct()
         {
             return ProductID;
         }
 
-        void IDevice.SetProduct(int product, int index)
+        public void SetProduct(int product)
         {
             ProductID = product;
         }
 
-        byte IDevice.GetBattery(int index)
+        public byte GetBattery()
         {
             return Battery;
         }
 
-        void IDevice.SetBattery(byte level, int index)
+        public void SetBattery(byte level)
         {
             Battery = level;
         }
 
-        byte[] IDevice.GetColor()
-        {
-            return Color;
-        }
-
-        void IDevice.SetLEDs(byte config, int index)
+        public void SetLEDs(byte config)
         {
             byte[] buf = new byte[65];
             buf[0] = 0x01;
@@ -151,7 +158,48 @@ namespace WinJoy_HidAPI
             catch { }
         }
 
-        void IDevice.CalibrateSticks()
+        public void SetColor(byte color, int rgb)
+        {
+            Color[rgb] = color;
+        }
+
+        public byte[] GetColor()
+        {
+            return Color;
+        }
+
+        public void ReadColor() //offsets in SPI data seem to vary depending on current input
+        {
+            Thread.Sleep(500);      //give the joycon some time to give the correct reply
+            byte[] buf = new byte[0x100];
+            buf[0] = 0x01;  //send subcommand
+            buf[10] = 0x10; //read SPI subcommand
+            buf[11] = 0x50; //SPI adress 0x6050 for R
+            buf[12] = 0x60;
+            buf[15] = 0x18;
+
+            Device.Write(buf);
+
+            buf = new byte[0x100];
+            buf[0] = 0x01;  //send subcommand
+            buf[10] = 0x10; //read SPI subcommand
+            buf[11] = 0x51; //SPI adress 0x6050 for G
+            buf[12] = 0x60;
+            buf[15] = 0x18;
+
+            Device.Write(buf);
+
+            buf = new byte[0x100];
+            buf[0] = 0x01;  //send subcommand
+            buf[10] = 0x10; //read SPI subcommand
+            buf[11] = 0x52; //SPI adress 0x6052 for B
+            buf[12] = 0x60;
+            buf[15] = 0x18;
+
+            Device.Write(buf);
+        }
+
+        public void CalibrateSticks()
         {
             try
             {
@@ -174,7 +222,7 @@ namespace WinJoy_HidAPI
         }
 
 
-        byte[] IDevice.GetOutput()
+        public byte[] GetOutput()
         {
             UpdateInput();
 
@@ -365,52 +413,6 @@ namespace WinJoy_HidAPI
                     Buttons[12] = ((data >> 4) & 0x01) != 0;
                     break;
             }
-        }
-
-        private byte[] ReadColor() //offsets in SPI data seem to vary depending on current input
-        {
-            byte[] color = new byte[3];
-
-            byte[] buf = new byte[0x100];
-            buf[0] = 0x01;  //send subcommand
-            buf[10] = 0x10; //read SPI subcommand
-            buf[11] = 0x50; //SPI adress 0x6050 for B
-            buf[12] = 0x60;
-            buf[15] = 0x18;
-
-            Device.Write(buf);
-            Thread.Sleep(100);
-            buf = Device.Read();
-
-            color[0] = buf[20];
-
-            buf = new byte[0x100];
-            buf[0] = 0x01;  //send subcommand
-            buf[10] = 0x10; //read SPI subcommand
-            buf[11] = 0x51; //SPI adress 0x6051 for R
-            buf[12] = 0x60;
-            buf[15] = 0x18;
-
-            Device.Write(buf);
-            Thread.Sleep(100);
-            buf = Device.Read();
-
-            color[1] = buf[20];
-
-            buf = new byte[0x100];
-            buf[0] = 0x01;  //send subcommand
-            buf[10] = 0x10; //read SPI subcommand
-            buf[11] = 0x52; //SPI adress 0x6052 for G
-            buf[12] = 0x60;
-            buf[15] = 0x18;
-
-            Device.Write(buf);
-            Thread.Sleep(100);
-            buf = Device.Read();
-
-            color[2] = buf[20];
-
-            return color;
         }
     }
 }

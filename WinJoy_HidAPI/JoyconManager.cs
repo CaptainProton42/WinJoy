@@ -19,8 +19,9 @@ namespace WinJoy_HidAPI
 
         public event EventHandler DeviceInfoChanged;
 
-        public IDevice[] joycons = new IDevice[3];
+        public JoyconDevice[] joycons = new JoyconDevice[2];
         public bool isActive = new bool();
+        public bool joined = new bool();
 
         public const String BUS_CLASS_GUID = "{F679F562-3164-42CE-A4DB-E7DDBE723909}";
         private Control handle;
@@ -30,7 +31,11 @@ namespace WinJoy_HidAPI
             : base(BUS_CLASS_GUID)
         {
             isActive = false;
+            joined = false;
             handle = _handle;
+            processingData[0] = new ContData();
+            processingData[1] = new ContData();
+            processingData[2] = new ContData();
         }
 
         public override Boolean Open(int Instance = 0)
@@ -61,39 +66,25 @@ namespace WinJoy_HidAPI
             buf[10] = 0x03;
             buf[11] = 0x30; //set device to standard 
 
-            foreach (int i in Enumerable.Range(0, 3))
+            foreach (int i in Enumerable.Range(0, 2))
             {
-                if (joycons[i] != null && joycons[i].Enabled)
+                if (joycons[i] != null)
                 {
-                    processingData[i] = new ContData();
-
                     Plugin(i + 1);
-
-                    joycons[i].GetDevice().InputReportArrivedEvent += (object s, ReportEventArgs a) => ProcessData(i, a, 0);
-                    joycons[i].GetDevice().StartAsyncRead();
 
                     joycons[i].GetDevice().Write(buf);
 
-                    if (joycons[i].GetDevice(0) != joycons[i].GetDevice(1))
-                    {
-                        joycons[i].GetDevice(1).InputReportArrivedEvent += (object s, ReportEventArgs a) => ProcessData(i, a, 1);
-                        joycons[i].GetDevice(1).StartAsyncRead();
-
-                        joycons[i].GetDevice(1).Write(buf);
-                    }
-
-                    Thread.Sleep(16);   //make sure calibration will commence after first report
+                    Thread.Sleep(50);   //make sure calibration will commence after first report
                     joycons[i].CalibrateSticks();
                 }
             }
             isActive = true;
-            DeviceInfoChanged(this, new EventArgs());
             return isActive;
         }
 
         public override bool Stop()
         {
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 2; i++)
             {
                 if (joycons[i] != null)
                 {
@@ -104,13 +95,6 @@ namespace WinJoy_HidAPI
                     buf[11] = 0x3F; //set device to inactive mode
 
                     joycons[i].GetDevice().Write(buf);
-                    joycons[i].GetDevice().StopAsyncRead();
-
-                    if (joycons[i].GetDevice(0) != joycons[i].GetDevice(1))
-                    {
-                        joycons[i].GetDevice(1).Write(buf);
-                        joycons[i].GetDevice(1).StopAsyncRead();
-                    }
                 }
             }
             isActive = false;
@@ -130,17 +114,7 @@ namespace WinJoy_HidAPI
         {
             if (joycons[0] != null && joycons[1] != null && !isActive)
             {
-                joycons[2] = new JoinedDevice();
-                joycons[2].SetDevice(joycons[0].GetDevice(), 0);
-                joycons[2].SetDevice(joycons[1].GetDevice(), 1);
-                joycons[2].SetProduct(joycons[0].GetProduct(), 0);
-                joycons[2].SetProduct(joycons[1].GetProduct(), 1);
-                joycons[2].SetVendor(joycons[0].GetVendor(), 0);
-                joycons[2].SetVendor(joycons[1].GetVendor(), 1);
-                joycons[2].Name = "Joined Device";
-
-                joycons[0].Enabled = false;
-                joycons[1].Enabled = false;
+                joined = true;
             }
         }
 
@@ -148,9 +122,7 @@ namespace WinJoy_HidAPI
         {
             if (!isActive)
             {
-                joycons[2] = null;
-                joycons[0].Enabled = true;
-                joycons[1].Enabled = true;
+                joined = false;
             }
         }
 
@@ -199,21 +171,54 @@ namespace WinJoy_HidAPI
             return false;
         }
 
-        private void ProcessData(int index, ReportEventArgs a, int subindex)
+        public void ProcessData(int index, ReportEventArgs a, int subindex)
         {
-            int oldBattery = joycons[index].GetBattery(subindex);
-            joycons[index].PushReport(a.Data, joycons[index].GetProduct(subindex));
-            byte[] data = joycons[index].GetOutput();
-            if (data != null)
+            switch (a.Data[0])
             {
-                data[0] = (byte)index;
-                Parse(data, processingData[index].parsedData);  //input to output
-                Report(processingData[index].parsedData, processingData[index].output);
-                if (joycons[index].GetBattery(subindex) != oldBattery)
-                {
-                    SetBatteryLED(joycons[index], subindex, joycons[index].GetBattery());
-                    DeviceInfoChanged(this, new EventArgs());
-                }
+                case 0x30:
+                    if (isActive)
+                    {
+                        int oldBattery = joycons[index].GetBattery();
+                        joycons[index].PushReport(a.Data, joycons[index].GetProduct());
+                        byte[] data = joycons[index].GetOutput();
+                        if (data != null)
+                        {
+                            Parse(data, processingData[index].parsedData);  //input to output
+                            if (!joined)
+                            {
+                                data[0] = (byte)index;
+                                Parse(data, processingData[index].parsedData);  //input to output
+                                Console.WriteLine(Convert.ToString(processingData[index].parsedData[4], 2));
+                                Report(processingData[index].parsedData, processingData[index].output);
+                            }
+                            else
+                            {
+                                data[0] = (byte)0;
+                                Parse(data, processingData[2].parsedData);
+                                // combine processingData 0 + 1 and Report.
+                                for (int i = 10; i < 22; i++) processingData[2].parsedData[i] = (byte)(processingData[0].parsedData[i] | processingData[1].parsedData[i]);
+                                Console.WriteLine(Convert.ToString(processingData[2].parsedData[4], 2));
+                                Report(processingData[2].parsedData, processingData[2].output);
+                            }
+                            if (joycons[index].GetBattery() != oldBattery)
+                            {
+                                SetBatteryLED(joycons[index], subindex, joycons[index].GetBattery());
+                                DeviceInfoChanged(this, new EventArgs());
+                            }
+                        }
+                    }
+                    break;
+
+                case 0x21:
+                    if (a.Data[14] == 0x10)
+                    {
+                        if (a.Data[15] == 0x50 && a.Data[16] == 0x60) joycons[index].SetColor(a.Data[20], 0);
+                        else if (a.Data[15] == 0x51 && a.Data[16] == 0x60) joycons[index].SetColor(a.Data[20], 1);
+                        else if (a.Data[15] == 0x52 && a.Data[16] == 0x60) joycons[index].SetColor(a.Data[20], 2);
+                        else break;
+                        DeviceInfoChanged(this, new EventArgs());
+                    }
+                    break;
             }
         }
 
@@ -299,24 +304,24 @@ namespace WinJoy_HidAPI
             }
         }
 
-        private void SetBatteryLED(IDevice dev, int subindex, byte batlvl)
+        private void SetBatteryLED(JoyconDevice dev, int subindex, byte batlvl)
         {
             switch (batlvl)
             {
                 case 8:
-                    dev.SetLEDs(0x8 | 0x4 | 0x2 | 0x1, subindex);
+                    dev.SetLEDs(0x8 | 0x4 | 0x2 | 0x1);
                     break;
                 case 6:
-                    dev.SetLEDs(0x0 | 0x4 | 0x2 | 0x1, subindex);
+                    dev.SetLEDs(0x0 | 0x4 | 0x2 | 0x1);
                     break;
                 case 4:
-                    dev.SetLEDs(0x0 | 0x0 | 0x2 | 0x1, subindex);
+                    dev.SetLEDs(0x0 | 0x0 | 0x2 | 0x1);
                     break;
                 case 2:
-                    dev.SetLEDs(0x0 | 0x0 | 0x0 | 0x1, subindex);
+                    dev.SetLEDs(0x0 | 0x0 | 0x0 | 0x1);
                     break;
                 case 0:
-                    dev.SetLEDs(0x0 | 0x0 | 0x0 | 0x10, subindex);
+                    dev.SetLEDs(0x0 | 0x0 | 0x0 | 0x10);
                     break;
             }
         }
