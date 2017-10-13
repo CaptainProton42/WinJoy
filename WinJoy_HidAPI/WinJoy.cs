@@ -126,7 +126,7 @@ namespace WinJoy_HidAPI
             else button2.Enabled = true;
         }
 
-        private Image Joycon_Image(int index, Color color)
+        private Image Joycon_Image(int index, Color color, double alpha = 1)
         {
             Bitmap bmp;
             switch (index)
@@ -134,11 +134,8 @@ namespace WinJoy_HidAPI
                 case 0:
                     bmp = Properties.Resources.joycon_l;
                     break;
-                case 1:
-                    bmp = Properties.Resources.joycon_r;
-                    break;
                 default:
-                    bmp = Properties.Resources.joycon_c;
+                    bmp = Properties.Resources.joycon_r;
                     break;
             }
 
@@ -147,6 +144,7 @@ namespace WinJoy_HidAPI
                 for (int y = 0; y < bmp.Height; y++)
                 {
                     if (bmp.GetPixel(x, y) == Color.FromArgb(255, 0, 255)) bmp.SetPixel(x, y, color);
+                    bmp.SetPixel(x, y, Color.FromArgb((int)(alpha * bmp.GetPixel(x, y).A), bmp.GetPixel(x, y).R, bmp.GetPixel(x, y).G, bmp.GetPixel(x, y).B));
                 }
             }
             return bmp;
@@ -179,12 +177,19 @@ namespace WinJoy_HidAPI
         {
             if (button2.Text == "Combine")
             {
-                if (joyconManager.JoinDevices()) button2.Text = "Separate";
+                if (joyconManager.JoinDevices())
+                {
+                    button2.Text = "Separate";
+                    pictureBox1.Image = Joycon_Image(0, Color.FromArgb(joyconManager.joycons[0].GetColor()[0], joyconManager.joycons[0].GetColor()[1], joyconManager.joycons[0].GetColor()[2]), 0.4);
+                    pictureBox2.Image = Joycon_Image(1, Color.FromArgb(joyconManager.joycons[1].GetColor()[0], joyconManager.joycons[1].GetColor()[1], joyconManager.joycons[1].GetColor()[2]), 0.4);
+                }
             } else if (button2.Text == "Separate")
             {
                 joyconManager.UnjoinDevices();
                 UpdateInfo(joyconManager.joycons);
                 button2.Text = "Combine";
+                pictureBox1.Image = null;
+                pictureBox2.Image = null;
             }
         }
 

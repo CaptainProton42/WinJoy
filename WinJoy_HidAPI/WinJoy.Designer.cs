@@ -43,10 +43,14 @@
             this.pictureBoxR = new System.Windows.Forms.PictureBox();
             this.labelBatteryR = new System.Windows.Forms.Label();
             this.labelNameR = new System.Windows.Forms.Label();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.groupBoxL.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxL)).BeginInit();
             this.groupBoxR.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxR)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             this.SuspendLayout();
             // 
             // buttonStart
@@ -76,6 +80,7 @@
             this.groupBoxL.Controls.Add(this.labelBatteryL);
             this.groupBoxL.Controls.Add(this.labelNameL);
             this.groupBoxL.Controls.Add(this.pictureBoxL);
+            this.groupBoxL.Controls.Add(this.pictureBox2);
             this.groupBoxL.Location = new System.Drawing.Point(12, 12);
             this.groupBoxL.Name = "groupBoxL";
             this.groupBoxL.Size = new System.Drawing.Size(552, 83);
@@ -125,12 +130,13 @@
             this.pictureBoxL.InitialImage = null;
             this.pictureBoxL.Location = new System.Drawing.Point(6, 13);
             this.pictureBoxL.Name = "pictureBoxL";
-            this.pictureBoxL.Size = new System.Drawing.Size(64, 64);
+            this.pictureBoxL.Size = new System.Drawing.Size(33, 64);
             this.pictureBoxL.TabIndex = 2;
             this.pictureBoxL.TabStop = false;
             // 
             // groupBoxR
             // 
+            this.groupBoxR.Controls.Add(this.pictureBox1);
             this.groupBoxR.Controls.Add(this.buttonCalR);
             this.groupBoxR.Controls.Add(this.labelLatR);
             this.groupBoxR.Controls.Add(this.pictureBoxR);
@@ -189,6 +195,25 @@
             this.labelNameR.TabIndex = 11;
             this.labelNameR.Text = "labelNameR";
             // 
+            // pictureBox1
+            // 
+            this.pictureBox1.InitialImage = null;
+            this.pictureBox1.Location = new System.Drawing.Point(6, 13);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(33, 64);
+            this.pictureBox1.TabIndex = 12;
+            this.pictureBox1.TabStop = false;
+            // 
+            // pictureBox2
+            // 
+            this.pictureBox2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.pictureBox2.InitialImage = null;
+            this.pictureBox2.Location = new System.Drawing.Point(6, 13);
+            this.pictureBox2.Name = "pictureBox2";
+            this.pictureBox2.Size = new System.Drawing.Size(64, 64);
+            this.pictureBox2.TabIndex = 14;
+            this.pictureBox2.TabStop = false;
+            // 
             // WinJoy
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -210,6 +235,8 @@
             this.groupBoxR.ResumeLayout(false);
             this.groupBoxR.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxR)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -229,6 +256,8 @@
         private System.Windows.Forms.Label labelLatR;
         private System.Windows.Forms.Label labelBatteryR;
         private System.Windows.Forms.Label labelNameR;
+        private System.Windows.Forms.PictureBox pictureBox2;
+        private System.Windows.Forms.PictureBox pictureBox1;
     }
 }
 

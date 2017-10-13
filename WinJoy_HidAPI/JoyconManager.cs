@@ -66,16 +66,25 @@ namespace WinJoy_HidAPI
             buf[10] = 0x03;
             buf[11] = 0x30; //set device to standard 
 
-            foreach (int i in Enumerable.Range(0, 2))
+            if (!joined)
             {
-                if (joycons[i] != null)
+                foreach (int i in Enumerable.Range(0, 2))
                 {
-                    Plugin(i + 1);
-
-                    joycons[i].GetDevice().Write(buf);
-
-                    Thread.Sleep(50);   //make sure calibration will commence after first report
-                    joycons[i].CalibrateSticks();
+                    if (joycons[i] != null)
+                    {
+                        Plugin(i + 1);
+                        joycons[i].GetDevice().Write(buf);
+                    }
+                }
+            } else
+            {
+                Plugin(1);
+                foreach (int i in Enumerable.Range(0, 2))
+                {
+                    if (joycons[i] != null)
+                    {
+                        joycons[i].GetDevice().Write(buf);
+                    }
                 }
             }
             isActive = true;
